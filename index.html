@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprende las Estructuras de Obligación en Español</title>
+  
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Canvas Confetti CDN for gamification -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Tone.js for audio feedback -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #060913;
+      --card-bg: #0f172a;
+      --card-inner: #1e293b;
+      --border-color: #334155;
+      
+      --neon-green: #10b981;
+      --neon-green-glow: rgba(16, 185, 129, 0.4);
+      --neon-cyan: #06b6d4;
+      --neon-cyan-glow: rgba(6, 182, 212, 0.4);
+      --neon-purple: #a855f7;
+      --neon-purple-glow: rgba(168, 85, 247, 0.4);
+      --neon-pink: #ec4899;
+      --neon-pink-glow: rgba(236, 72, 153, 0.4);
+      --neon-yellow: #f59e0b;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    
+    body { 
+      background-color: var(--bg-main); 
+      color: var(--text-main); 
+      min-height: 100vh;
+      padding: 20px 10px; 
+      display: flex; 
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Background Canvas */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .main-wrapper { 
+      max-width: 1050px; 
+      width: 100%; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 32px; 
+      position: relative;
+      z-index: 1;
+    }
+
+    header { 
+      background: linear-gradient(135deg, rgba(30,27,75,0.9), rgba(15,23,42,0.95)); 
+      border: 1px solid var(--neon-cyan);
+      padding: 30px 20px; 
+      border-radius: 24px; 
+      text-align: center; 
+      box-shadow: 0 0 35px rgba(6, 182, 212, 0.25);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    header::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green), var(--neon-purple), var(--neon-pink));
+      animation: rainbowGlow 4s linear infinite;
+    }
+
+    @keyframes rainbowGlow {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    header h1 { 
+      font-size: 2.3rem; 
+      font-weight: 800; 
+      letter-spacing: -0.5px; 
+      background: linear-gradient(90deg, #ffffff, var(--neon-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    header p { 
+      font-size: 1rem; 
+      color: var(--neon-cyan); 
+      font-family: 'Fira Code', monospace; 
+      margin-top: 8px; 
+    }
+
+    /* GAMIFICATION BAR */
+    .game-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 16px 24px;
+      gap: 15px;
+      flex-wrap: wrap;
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      background: var(--card-inner);
+    }
+
+    .stat-val {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .progress-bar-container {
+      flex: 1;
+      min-width: 200px;
+      background: var(--card-inner);
+      height: 14px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+      border-radius: 10px;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 12px var(--neon-green-glow);
+    }
+
+    .section-title {
+      font-size: 1.4rem; 
+      font-weight: 800; 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      color: var(--text-main); 
+      border-bottom: 2px solid var(--border-color); 
+      padding-bottom: 12px; 
+      margin-bottom: 20px;
+    }
+    .section-title i { color: var(--neon-cyan); font-size: 1.5rem; }
+
+    /* SHORT SUMMARY CARDS BANNER */
+    .summary-banner {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 18px;
+      padding: 18px;
+      border-left: 5px solid var(--neon-cyan);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .summary-card.green { border-left-color: var(--neon-green); }
+    .summary-card.purple { border-left-color: var(--neon-purple); }
+    .summary-card.pink { border-left-color: var(--neon-pink); }
+
+    .summary-head {
+      font-weight: 800;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .summary-card.green .summary-head { color: var(--neon-green); }
+    .summary-card.purple .summary-head { color: var(--neon-purple); }
+    .summary-card.pink .summary-head { color: var(--neon-pink); }
+
+    .summary-body {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .summary-tag {
+      font-size: 0.75rem;
+      font-family: 'Fira Code', monospace;
+      color: var(--neon-yellow);
+      background: rgba(245, 158, 11, 0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+      width: fit-content;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .visual-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 22px;
+    }
+
+    .v-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .v-card:hover { 
+      transform: translateY(-8px) scale(1.01); 
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+    
+    .v-card.type-1 { border-top: 6px solid var(--neon-green); }
+    .v-card.type-1:hover { border-color: var(--neon-green); box-shadow: 0 10px 30px var(--neon-green-glow); }
+
+    .v-card.type-2 { border-top: 6px solid var(--neon-purple); }
+    .v-card.type-2:hover { border-color: var(--neon-purple); box-shadow: 0 10px 30px var(--neon-purple-glow); }
+
+    .v-card.type-3 { border-top: 6px solid var(--neon-pink); }
+    .v-card.type-3:hover { border-color: var(--neon-pink); box-shadow: 0 10px 30px var(--neon-pink-glow); }
+
+    .v-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .v-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .type-1 .v-icon { background: rgba(16, 185, 129, 0.15); color: var(--neon-green); }
+    .type-2 .v-icon { background: rgba(168, 85, 247, 0.15); color: var(--neon-purple); }
+    .type-3 .v-icon { background: rgba(236, 72, 153, 0.15); color: var(--neon-pink); }
+
+    .v-title-box { display: flex; flex-direction: column; }
+    .v-title { font-family: 'Fira Code', monospace; font-size: 1.3rem; font-weight: 800; }
+    .type-1 .v-title { color: var(--neon-green); }
+    .type-2 .v-title { color: var(--neon-purple); }
+    .type-3 .v-title { color: var(--neon-pink); }
+    .v-subtitle { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-top: 2px; }
+
+    .v-badge {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .v-badge-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+    .type-1 .v-badge-header i { color: var(--neon-green); }
+    .type-2 .v-badge-header i { color: var(--neon-purple); }
+    .type-3 .v-badge-header i { color: var(--neon-pink); }
+
+    .v-example {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      border-left: 3px solid var(--border-color);
+      margin-top: 4px;
+    }
+    .type-1 .v-example { border-left-color: var(--neon-green); }
+    .type-2 .v-example { border-left-color: var(--neon-purple); }
+    .type-3 .v-example { border-left-color: var(--neon-pink); }
+
+    /* Conjugation Table Box */
+    .conj-box {
+      background: var(--card-inner);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .conj-item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 4px;
+    }
+    .conj-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .conj-person { color: var(--text-muted); }
+    .conj-verb { font-weight: 700; color: #fff; }
+    .highlight-vosotros { color: var(--neon-yellow) !important; }
+
+    .info-flow {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 25px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      backdrop-filter: blur(8px);
+    }
+    .flow-step {
+      background: var(--card-inner);
+      padding: 18px;
+      border-radius: 16px;
+      border-left: 4px solid var(--neon-cyan);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: transform 0.2s;
+    }
+    .flow-step:hover { transform: translateY(-3px); }
+    .flow-step h4 { font-size: 0.85rem; color: var(--neon-cyan); font-family: 'Fira Code', monospace; }
+    .flow-step p { font-size: 0.95rem; font-weight: 600; line-height: 1.4; }
+
+    .practice-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      backdrop-filter: blur(8px);
+    }
+
+    .practice-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      flex-wrap: wrap; 
+      gap: 10px;
+      border-bottom: 1px solid var(--border-color); 
+      padding-bottom: 16px;
+    }
+    .practice-title { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+
+    /* EXERCISE 1: Cards Matrix */
+    .card-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+    }
+
+    .q-card {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+
+    .q-card:hover { border-color: rgba(6, 182, 212, 0.5); }
+
+    .q-context { font-size: 0.78rem; color: var(--neon-cyan); font-family: 'Fira Code', monospace; text-transform: uppercase; font-weight: 700; }
+    .q-text { font-size: 0.98rem; font-weight: 600; line-height: 1.4; flex: 1; }
+
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+    
+    .opt-btn {
+      flex: 1;
+      min-width: 90px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .opt-btn:hover { border-color: var(--neon-cyan); background: rgba(6, 182, 212, 0.15); transform: translateY(-2px); }
+    
+    .q-card.correct { border-color: var(--neon-green); background: rgba(16, 185, 129, 0.08); box-shadow: 0 0 15px var(--neon-green-glow); }
+    .q-card.incorrect { border-color: var(--neon-pink); background: rgba(236, 72, 153, 0.08); box-shadow: 0 0 15px var(--neon-pink-glow); }
+
+    /* EXERCISE 2: Fill-in Grid */
+    .fill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 14px;
+    }
+    @media (max-width: 520px) {
+      .fill-grid { grid-template-columns: 1fr; }
+    }
+
+    .fill-row {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.25s ease;
+    }
+    .fill-num { font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--neon-cyan); font-weight: 700; }
+    .fill-text { font-size: 0.95rem; font-weight: 600; flex: 1; line-height: 1.5; }
+    
+    .fill-input {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--neon-yellow);
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 8px 12px;
+      border-radius: 10px;
+      outline: none;
+      width: 130px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .fill-input:focus { border-color: var(--neon-yellow); box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+    
+    .fill-row.correct { border-color: var(--neon-green); background: rgba(16, 185, 129, 0.08); }
+    .fill-row.incorrect { border-color: var(--neon-pink); background: rgba(236, 72, 153, 0.08); }
+
+    .btn-action {
+      background: linear-gradient(90deg, var(--neon-green), #059669);
+      color: #000;
+      font-weight: 800;
+      border: none;
+      padding: 15px 28px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 1.05rem;
+      transition: all 0.25s;
+      align-self: flex-start;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 20px var(--neon-green-glow);
+    }
+    .btn-action:hover { transform: scale(1.03); opacity: 0.95; }
+
+    /* SCORE PANEL */
+    .score-panel {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+      border: 1px solid var(--neon-green);
+      padding: 22px;
+      border-radius: 18px;
+      text-align: center;
+      display: none;
+      animation: popIn 0.3s ease;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .score-panel h3 { font-size: 1.5rem; color: var(--neon-green); margin-bottom: 6px; }
+
+    /* Audio Toggle Button */
+    .audio-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+      z-index: 100;
+      transition: transform 0.2s;
+    }
+    .audio-btn:hover { transform: scale(1.1); }
+  </style>
+</head>
+<body>
+
+  <!-- Background Animated Canvas -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Sound Toggle -->
+  <button class="audio-btn" id="audioToggle" title="Activar/Desactivar Sonido">
+    <i class="fa-solid fa-volume-high"></i>
+  </button>
+
+  <div class="main-wrapper">
+
+    <header>
+      <h1>Estructuras de Obligación en Español</h1>
+      <p>⚡ Tener que, Deber y Hay que</p>
+    </header>
+
+    <!-- GAMIFICATION STATUS BAR -->
+    <div class="game-bar">
+      <div class="stat-item">
+        <div class="stat-icon" style="color: var(--neon-yellow);"><i class="fa-solid fa-trophy"></i></div>
+        <div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">PUNTOS</div>
+          <div class="stat-val" id="scoreDisplay">0 / 20</div>
+        </div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-icon" style="color: var(--neon-cyan);"><i class="fa-solid fa-fire"></i></div>
+        <div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">PROGRESO</div>
+          <div class="stat-val" id="percentDisplay">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <div class="section-title"><i class="fa-solid fa-bolt"></i> Resumen Rápido y Conceptos Clave</div>
+      
+      <!-- SUMMARY CARDS BANNER (SHORT AND CLEAR CONCEPTS) -->
+      <div class="summary-banner">
+        <div class="summary-card green">
+          <div class="summary-head"><i class="fa-solid fa-clock"></i> 1. TENER QUE</div>
+          <div class="summary-body">
+            Obligación por una <strong>situación, horario o regla externa</strong>. Sientes que no tienes otra opción.
+          </div>
+          <div class="summary-tag">👉 Se conjuga (tengo, tienes...)</div>
+        </div>
+
+        <div class="summary-card purple">
+          <div class="summary-head"><i class="fa-solid fa-scale-balanced"></i> 2. DEBER</div>
+          <div class="summary-body">
+            Obligación por <strong>respeto, valores, ética personal</strong> o responsabilidad. Para consejos formales.
+          </div>
+          <div class="summary-tag">👉 Se conjuga (debo, debes...)</div>
+        </div>
+
+        <div class="summary-card pink">
+          <div class="summary-head"><i class="fa-solid fa-users-line"></i> 3. HAY QUE</div>
+          <div class="summary-body">
+            Regla o necesidad para <strong>todo el mundo en general</strong>, sin señalar a nadie en particular.
+          </div>
+          <div class="summary-tag">👉 ¡Nunca cambia! (Fijo "Hay")</div>
+        </div>
+      </div>
+
+      <div class="section-title"><i class="fa-solid fa-book-open"></i> Explicación Detallada de las Estructuras</div>
+      
+      <div class="visual-grid">
+        
+        <!-- 1. TENER QUE + INFINITIVO -->
+        <div class="v-card type-1">
+          <div class="v-banner">
+            <div class="v-icon"><i class="fa-solid fa-clock"></i></div>
+            <div class="v-title-box">
+              <span class="v-title">TENER QUE</span>
+              <span class="v-subtitle">Obligación Externa o Circunstancial</span>
+            </div>
+          </div>
+          
+          <div class="v-badge">
+            <div class="v-badge-header">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>¿Cómo funciona?</span>
+            </div>
+            <div>Se usa para expresar una obligación fuerte provocada por <strong>factores externos, situaciones, reglas de otros o fuerza de las circunstancias</strong>. El hablante siente que no tiene otra opción. Es la más común en el habla cotidiana.</div>
+            <div><strong>Características:</strong> Se conjuga según el sujeto (tengo, tienes, tiene...).</div>
+            <div class="v-example">
+              💬 <em>"<strong>Tengo que</strong> ir al banco antes de que cierre."</em> (La situación y el horario me obligan).
+            </div>
+          </div>
+
+          <!-- TABLA CON VOSOTROS -->
+          <div class="conj-box">
+            <div class="conj-item"><span class="conj-person">Yo</span> <span class="conj-verb">tengo que</span></div>
+            <div class="conj-item"><span class="conj-person">Tú</span> <span class="conj-verb">tienes que</span></div>
+            <div class="conj-item"><span class="conj-person">Él / Ella / Ud.</span> <span class="conj-verb">tiene que</span></div>
+            <div class="conj-item"><span class="conj-person">Nosotros/as</span> <span class="conj-verb">tenemos que</span></div>
+            <div class="conj-item"><span class="conj-person">Vosotros/as</span> <span class="conj-verb highlight-vosotros">tenéis que</span></div>
+            <div class="conj-item"><span class="conj-person">Ellos / Ellas / Uds.</span> <span class="conj-verb">tienen que</span></div>
+          </div>
+        </div>
+
+        <!-- 2. DEBER + INFINITIVO -->
+        <div class="v-card type-2">
+          <div class="v-banner">
+            <div class="v-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+            <div class="v-title-box">
+              <span class="v-title">DEBER</span>
+              <span class="v-subtitle">Obligación Moral, Interna o Formal</span>
+            </div>
+          </div>
+
+          <div class="v-badge">
+            <div class="v-badge-header">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>¿Cómo funciona?</span>
+            </div>
+            <div>Nace del propio sujeto, basada en su <strong>moral, sentido de la responsabilidad, ética o valores</strong>. También sirve para dar consejos o sugerencias respetuosas.</div>
+            <div><strong>Características:</strong> Se conjuga (debo, debes, debe...). Suena más formal o institucional que <em>tener que</em>.</div>
+            <div class="v-example">
+              💬 <em>"<strong>Debes</strong> respetar a tus mayores."</em> (Deber moral / norma social).
+            </div>
+          </div>
+
+          <!-- TABLA CON VOSOTROS -->
+          <div class="conj-box">
+            <div class="conj-item"><span class="conj-person">Yo</span> <span class="conj-verb">debo</span></div>
+            <div class="conj-item"><span class="conj-person">Tú</span> <span class="conj-verb">debes</span></div>
+            <div class="conj-item"><span class="conj-person">Él / Ella / Ud.</span> <span class="conj-verb">debe</span></div>
+            <div class="conj-item"><span class="conj-person">Nosotros/as</span> <span class="conj-verb">debemos</span></div>
+            <div class="conj-item"><span class="conj-person">Vosotros/as</span> <span class="conj-verb highlight-vosotros">debéis</span></div>
+            <div class="conj-item"><span class="conj-person">Ellos / Ellas / Uds.</span> <span class="conj-verb">deben</span></div>
+          </div>
+        </div>
+
+        <!-- 3. HAY QUE + INFINITIVO -->
+        <div class="v-card type-3">
+          <div class="v-banner">
+            <div class="v-icon"><i class="fa-solid fa-users-line"></i></div>
+            <div class="v-title-box">
+              <span class="v-title">HAY QUE</span>
+              <span class="v-subtitle">Obligación Impersonal</span>
+            </div>
+          </div>
+
+          <div class="v-badge">
+            <div class="v-badge-header">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>¿Cómo funciona?</span>
+            </div>
+            <div>Expresa una <strong>necesidad general aplicable a todo el mundo</strong> o a nadie en particular. Indica que una acción es necesaria para lograr un fin, sin señalar a un responsable directo.</div>
+            <div><strong>Características:</strong> <u>Nunca cambia</u>. No existe "yo hay que"; siempre se queda fija en "hay".</div>
+            <div class="v-example">
+              💬 <em>"<strong>Hay que</strong> estudiar mucho para aprobar este examen."</em> (Regla general).
+            </div>
+          </div>
+
+          <div class="conj-box" style="justify-content: center; align-items: center; text-align: center; height: 100%;">
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--neon-pink);">
+              ¡FORMA ÚNICA E IMPERSONAL!
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+              Siempre se utiliza <strong>HAY QUE + INFINITIVO</strong><br>
+              <em>Ejemplo: Hay que prestar atención en clase.</em>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TRUCO DE DECISIÓN RÁPIDA -->
+    <section class="info-flow">
+      <div class="flow-step">
+        <h4>PASO 1: ¿DEPENDE DEL RELOJ O SITUACIÓN?</h4>
+        <p>Si depende de una circunstancia o fuerza externa, usa <strong style="color:var(--neon-green)">Tener que</strong>.</p>
+      </div>
+      <div class="flow-step">
+        <h4>PASO 2: ¿ES UN VALOR?</h4>
+        <p>Si responde a moral, ética o un consejo formal, usa <strong style="color:var(--neon-purple)">Deber</strong>.</p>
+      </div>
+      <div class="flow-step">
+        <h4>PASO 3: ¿ES GENERAL PARA TODOS NO HAY UN YO, TÚ, ELLOS?</h4>
+        <p>Si es una regla para todo el mundo sin sujeto personal, usa <strong style="color:var(--neon-pink)">Hay que</strong>.</p>
+      </div>
+    </section>
+
+    <div class="practice-box">
+      <div class="practice-header">
+        <div class="practice-title"><i class="fa-solid fa-list-check" style="color:var(--neon-cyan)"></i> Ejercicio 1: Selecciona la Opción Correcta</div>
+        <span style="font-family:'Fira Code'; font-size: 0.85rem; color: var(--neon-cyan);">10 Preguntas</span>
+      </div>
+
+      <div class="card-matrix" id="matrixContainer">
+        <!-- Generated Dynamically via Javascript for maximum interactivity -->
+      </div>
+    </div>
+
+    <div class="practice-box">
+      <div class="practice-header">
+        <div class="practice-title"><i class="fa-solid fa-keyboard" style="color:var(--neon-yellow)"></i> Ejercicio 2: Escribe la Conjugación Correcta</div>
+        <span style="font-family:'Fira Code'; font-size: 0.85rem; color: var(--neon-yellow);">Usa: tengo, tienes, tiene, tenemos, tenéis, tienen, debo, debéis, deben, hay</span>
+      </div>
+
+      <div class="fill-grid" id="fillGridContainer">
+        <!-- Generated Dynamically via Javascript -->
+      </div>
+
+      <button class="btn-action" onclick="checkFillAnswers()">
+        <i class="fa-solid fa-circle-check"></i> Comprobar Respuestas del Ejercicio 2
+      </button>
+      
+      <div id="fill-score-box" class="score-panel">
+        <h3 id="fill-score-title">¡Excelente trabajo!</h3>
+        <p id="fill-score-details" style="color: var(--text-main); font-weight: 600; margin-top: 4px;"></p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Tone.js Audio Synth setup for feedback
+    let soundEnabled = true;
+    const synth = new Tone.Synth().toDestination();
+
+    document.getElementById('audioToggle').addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('audioToggle').querySelector('i');
+      if (soundEnabled) {
+        icon.className = 'fa-solid fa-volume-high';
+        Tone.start();
+      } else {
+        icon.className = 'fa-solid fa-volume-xmark';
+      }
+    });
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        if (type === 'correct') {
+          synth.triggerAttackRelease("C5", "8n");
+        } else if (type === 'wrong') {
+          synth.triggerAttackRelease("F3", "8n");
+        } else if (type === 'victory') {
+          const now = Tone.now();
+          synth.triggerAttackRelease("C4", "8n", now);
+          synth.triggerAttackRelease("E4", "8n", now + 0.15);
+          synth.triggerAttackRelease("G4", "8n", now + 0.3);
+          synth.triggerAttackRelease("C5", "4n", now + 0.45);
+        }
+      } catch (e) { console.log(e); }
+    }
+
+    // Canvas Background Animation
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.alpha = Math.random() * 0.5 + 0.1;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.fillStyle = `rgba(6, 182, 212, ${this.alpha})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 45; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // 10 QUESTIONS FOR EXERCISE 1
+    const questionsEx1 = [
+      { id: 'q1', ctx: '// Regla general de conducir', text: 'Para conducir un coche, ________ tener licencia obligatoriamente.', opts: ['hay que', 'tengo que'], ans: 'hay que' },
+      { id: 'q2', ctx: '// Horario externo (Yo)', text: 'El banco cierra a las 14:00. Yo ________ ir al banco ahora mismo.', opts: ['tengo que', 'hay que'], ans: 'tengo que' },
+      { id: 'q3', ctx: '// Deber moral / Respeto (Nosotros)', text: 'Todos nosotros ________ respetar a nuestros mayores por educación.', opts: ['debemos', 'hay que'], ans: 'debemos' },
+      { id: 'q4', ctx: '// Examen general', text: 'Para sacar una buena nota, ________ estudiar con frecuencia.', opts: ['hay que', 'tienes que'], ans: 'hay que' },
+      { id: 'q5', ctx: '// Circunstancia médica (Ella)', text: 'María está enferma y por eso ________ tomar su medicina.', opts: ['tiene que', 'hay que'], ans: 'tiene que' },
+      { id: 'q6', ctx: '// Vosotros (Grupo formal / instrucción)', text: 'Chicos, si tenéis dudas, vosotros ________ preguntar al profesor.', opts: ['debéis', 'hay que'], ans: 'debéis' },
+      { id: 'q7', ctx: '// Norma de seguridad en avión', text: 'Durante el despegue, ________ mantener el cinturón abrochado.', opts: ['hay que', 'tenemos que'], ans: 'hay que' },
+      { id: 'q8', ctx: '// Compromiso laboral (Nosotros)', text: 'El cliente espera los resultados; nosotros ________ entregar el proyecto.', opts: ['tenemos que', 'hay que'], ans: 'tenemos que' },
+      { id: 'q9', ctx: '// Vosotros (Obligación circumstantial)', text: 'Si queréis llegar a tiempo, vosotros ________ salir ya de casa.', opts: ['tenéis que', 'deben'], ans: 'tenéis que' },
+      { id: 'q10', ctx: '// Responsabilidad social', text: 'Todos los ciudadanos ________ cuidar los espacios públicos.', opts: ['deben', 'hay que'], ans: 'deben' }
+    ];
+
+    // 10 QUESTIONS FOR EXERCISE 2
+    const questionsEx2 = [
+      { id: 'f1', text: 'Yo <input type="text" class="fill-input" data-ans="tengo" placeholder="..."> que ir al banco antes de que cierre.', prompt: 'tengo' },
+      { id: 'f2', text: 'Para aprobar este examen, <input type="text" class="fill-input" data-ans="hay" placeholder="..."> que estudiar mucho.', prompt: 'hay' },
+      { id: 'f3', text: 'Tú <input type="text" class="fill-input" data-ans="debes" placeholder="..."> respetar a tus mayores.', prompt: 'debes' },
+      { id: 'f4', text: 'En la biblioteca <input type="text" class="fill-input" data-ans="hay" placeholder="..."> que hacer silencio.', prompt: 'hay' },
+      { id: 'f5', text: 'Vosotros <input type="text" class="fill-input" data-ans="tenéis" placeholder="..."> que terminar la tarea hoy.', prompt: 'tenéis' },
+      { id: 'f6', text: 'Nosotros <input type="text" class="fill-input" data-ans="tenemos" placeholder="..."> que entregar el informe esta tarde.', prompt: 'tenemos' },
+      { id: 'f7', text: 'Carlos <input type="text" class="fill-input" data-ans="tiene" placeholder="..."> que viajar por motivos de trabajo.', prompt: 'tiene' },
+      { id: 'f8', text: 'Vosotros <input type="text" class="fill-input" data-ans="debéis" placeholder="..."> ser más amables con los vecinos.', prompt: 'debéis' },
+      { id: 'f9', text: 'Para entrar al museo, <input type="text" class="fill-input" data-ans="hay" placeholder="..."> que comprar el boleto.', prompt: 'hay' },
+      { id: 'f10', text: 'Ellos <input type="text" class="fill-input" data-ans="deben" placeholder="..."> cumplir las leyes de tráfico.', prompt: 'deben' }
+    ];
+
+    let ex1Score = {};
+    let ex2Evaluated = false;
+
+    // RENDER EXERCISE 1
+    function renderEx1() {
+      const container = document.getElementById('matrixContainer');
+      container.innerHTML = '';
+
+      questionsEx1.forEach(q => {
+        const card = document.createElement('div');
+        card.className = 'q-card';
+        card.id = q.id;
+
+        card.innerHTML = `
+          <div class="q-context">${q.ctx}</div>
+          <div class="q-text">${q.text}</div>
+          <div class="btn-group">
+            ${q.opts.map(opt => `<button class="opt-btn" onclick="selectEx1Option('${q.id}', '${opt}', this)">${opt}</button>`).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // RENDER EXERCISE 2
+    function renderEx2() {
+      const container = document.getElementById('fillGridContainer');
+      container.innerHTML = '';
+
+      questionsEx2.forEach((q, idx) => {
+        const row = document.createElement('div');
+        row.className = 'fill-row';
+        row.id = `row-${q.id}`;
+        row.innerHTML = `
+          <span class="fill-num">${(idx + 1).toString().padStart(2, '0')}.</span>
+          <div class="fill-text">${q.text}</div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // HANDLE SELECTION EXERCISE 1
+    function selectEx1Option(qId, selectedOption, btnElement) {
+      const question = questionsEx1.find(q => q.id === qId);
+      const card = document.getElementById(qId);
+      const buttons = card.querySelectorAll('.opt-btn');
+
+      buttons.forEach(b => {
+        b.style.opacity = '0.4';
+        b.style.pointerEvents = 'none';
+      });
+
+      btnElement.style.opacity = '1';
+
+      if (selectedOption === question.ans) {
+        card.classList.add('correct');
+        btnElement.style.background = 'var(--neon-green)';
+        btnElement.style.color = '#000';
+        ex1Score[qId] = true;
+        playSound('correct');
+      } else {
+        card.classList.add('incorrect');
+        btnElement.style.background = 'var(--neon-pink)';
+        btnElement.style.color = '#fff';
+        ex1Score[qId] = false;
+        playSound('wrong');
+      }
+
+      updateTotalProgress();
+    }
+
+    // CHECK EXERCISE 2
+    function checkFillAnswers() {
+      let ex2CorrectCount = 0;
+
+      questionsEx2.forEach(q => {
+        const row = document.getElementById(`row-${q.id}`);
+        const input = row.querySelector('.fill-input');
+        const userVal = input.value.trim().toLowerCase();
+
+        if (userVal === q.prompt.toLowerCase()) {
+          row.classList.remove('incorrect');
+          row.classList.add('correct');
+          ex2CorrectCount++;
+        } else {
+          row.classList.remove('correct');
+          row.classList.add('incorrect');
+        }
+      });
+
+      ex2Evaluated = true;
+      updateTotalProgress();
+
+      const scoreBox = document.getElementById('fill-score-box');
+      const scoreTitle = document.getElementById('fill-score-title');
+      const scoreDetails = document.getElementById('fill-score-details');
+
+      scoreBox.style.display = 'block';
+
+      if (ex2CorrectCount === questionsEx2.length) {
+        scoreTitle.innerText = "⚡ ¡Puntuación Perfecta en el Ejercicio 2! (10/10)";
+        scoreDetails.innerText = "¡Excelente dominio de las conjugaciones verbales (incluyendo vosotros)!";
+        playSound('victory');
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      } else {
+        scoreTitle.innerText = `👍 Has acertado ${ex2CorrectCount} de ${questionsEx2.length}`;
+        scoreDetails.innerText = "Revisa las casillas en rojo para corregir tu respuesta.";
+        playSound('wrong');
+      }
+    }
+
+    // UPDATE PROGRESS & GAMIFICATION BAR
+    function updateTotalProgress() {
+      const countEx1Correct = Object.values(ex1Score).filter(val => val === true).length;
+
+      let countEx2Correct = 0;
+      if (ex2Evaluated) {
+        questionsEx2.forEach(q => {
+          const row = document.getElementById(`row-${q.id}`);
+          if (row.classList.contains('correct')) countEx2Correct++;
+        });
+      }
+
+      const totalCorrect = countEx1Correct + countEx2Correct;
+      const totalPossible = questionsEx1.length + questionsEx2.length;
+      const percentage = Math.round((totalCorrect / totalPossible) * 100);
+
+      document.getElementById('scoreDisplay').innerText = `${totalCorrect} / ${totalPossible}`;
+      document.getElementById('percentDisplay').innerText = `${percentage}%`;
+      document.getElementById('progressBar').style.width = `${percentage}%`;
+
+      if (totalCorrect === totalPossible && totalPossible > 0) {
+        confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+      }
+    }
+
+    // INITIALIZATION
+    window.onload = function() {
+      renderEx1();
+      renderEx2();
+    };
+  </script>
+</body>
+</html>
